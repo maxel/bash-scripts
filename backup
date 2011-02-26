@@ -1,0 +1,27 @@
+#!/bin/sh
+#
+# backup - backup dirs and other data
+
+HOME=/mnt/vault/backup
+DIRS="bind,dhcp3,samba,hostapd,proftpd,network"
+FILES="/etc/mediatomb/config.xml"
+
+cd /etc
+IFS="|"
+for b in "$DIRS|$FILES"; do
+	echo "iter"
+	IFS=","
+	for d in $b; do
+		echo $d
+	done
+	#if [ -d $HOME/$d ]; then
+	#	cp -rp $d $B_DIR/config_files/
+	#fi
+done
+
+#B_DIR=$HOME/
+#for d in $DIRS; do
+#	cp -rp $d $B_DIR/ 
+#done
+
+#cp -r /home/maxl/bin /home/lonestar/Storage/backup/maxlbin/

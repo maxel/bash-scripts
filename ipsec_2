@@ -1,0 +1,117 @@
+#
+#
+# ipsec_2 - iptables security script
+
+IPTABLES=/sbin/iptables
+ROOTERLAN=eth0
+ROOTERWAN=eth1
+VEGALANIP=10.6.1.10
+ROOTERLANIP=10.6.1.1
+LANNET=10.6.1.0/24
+
+# set policies
+$IPTABLES -P INPUT DROP
+$IPTABLES -P OUTPUT ACCEPT
+$IPTABLES -P FORWARD DROP
+
+# clear tables and start clean
+$IPTABLES -F
+$IPTABLES -F INPUT
+$IPTABLES -F OUTPUT
+$IPTABLES -F FORWARD
+$IPTABLES -Z
+$IPTABLES -X
+
+# create stateful table
+$IPTABLES -N STATEFUL
+$IPTABLES -F STATEFUL
+$IPTABLES -A STATEFUL -m state --state ESTABLISHED,RELATED,NEW -j ACCEPT
+$IPTABLES -A STATEFUL -p tcp --dport 80 -j LOG --log-prefix "---DUMPING HTTP: "
+$IPTABLES -A STATEFUL -j DROP
+
+#create the DUMP table
+$IPTABLES -N DUMP
+$IPTABLES -F DUMP
+$IPTABLES -A DUMP -p tcp --dport 22 -j LOG --log-prefix "DUMPING SSH: "
+$IPTABLES -A DUMP -p tcp --dport 80 -j LOG --log-prefix "----DUMPING HTTP: "
+$IPTABLES -A DUMP -j DROP
+
+# SSH protection table
+/sbin/iptables -N SSH
+/sbin/iptables -F SSH
+/sbin/iptables -A SSH -i ! ${ROOTERWAN} -j RETURN
+/sbin/iptables -A SSH -m recent --name SSH --set --rsource
+/sbin/iptables -A SSH -m recent ! --rcheck --seconds 60 --hitcount 3 --name SSH --rsource -j DUMP
+/sbin/iptables -A SSH -j DROP
+
+# allow loopback and LAN out and misc.
+#$IPTABLES -A INPUT -i $ROOTERWAN -j LOG --log-prefix "---HTTP INCOMMING: "
+$IPTABLES -A INPUT -i lo -j ACCEPT
+$IPTABLES -A OUTPUT -o lo -j ACCEPT
+$IPTABLES -A OUTPUT -o ppp+ -j ACCEPT
+$IPTABLES -A OUTPUT -o $ROOTERWAN -p ALL -s $LANNET -j ACCEPT
+$IPTABLES -A INPUT -i $ROOTERLANIP -j ACCEPT
+$IPTABLES -t mangle -A PREROUTING -i $ROOTERWAN -p 50 -j MARK --set-mark 3
+$IPTABLES -t mangle -A PREROUTING -i $ROOTERWAN -p udp --dport 4500 -j MARK --set-mark 1
+
+
+# allow bootp in becuase of some comcast thingy
+$IPTABLES -A INPUT -p tcp --dport bootps --sport bootps -i $ROOTERWAN -j ACCEPT
+$IPTABLES -A INPUT -p udp --dport bootps --sport bootps -i $ROOTERWAN -j ACCEPT
+
+# TCP/UDP/ICMP misc
+$IPTABLES -A INPUT -p tcp --dport ssh -i $ROOTERWAN -m state --state NEW -j SSH
+$IPTABLES -A INPUT -p tcp --dport ssh -i $ROOTERWAN -j ACCEPT
+$IPTABLES -A INPUT -p tcp --dport ftp -i $ROOTERWAN -j ACCEPT
+$IPTABLES -A INPUT -p tcp --dport 1024: -i $ROOTERWAN -j ACCEPT
+$IPTABLES -A INPUT -p tcp --dport 1194 -i $ROOTERWAN -j ACCEPT
+$IPTABLES -A INPUT -p udp --dport 33434: -i $ROOTERWAN -j ACCEPT
+$IPTABLES -A INPUT -p tcp --dport auth -i $ROOTERWAN -j ACCEPT
+$IPTABLES -A INPUT -p udp --dport auth -i $ROOTERWAN -j ACCEPT
+$IPTABLES -A INPUT -p tcp --dport http -i $ROOTERWAN -j ACCEPT
+$IPTABLES -A INPUT -i ppp+ -j ACCEPT
+$IPTABLES -A INPUT -i $ROOTERWAN -m mark --mark 3 -j ACCEPT
+$IPTABLES -A INPUT -i $ROOTERWAN -m mark --mark 1 -j ACCEPT
+$IPTABLES -A INPUT -p udp -i $ROOTERWAN --destination-port 500 -j ACCEPT
+$IPTABLES -A INPUT -p udp -i $ROOTERWAN --destination-port 4500 -j ACCEPT
+$IPTABLES -A INPUT -i $ROOTERWAN -p icmp --icmp-type echo-reply -j ACCEPT
+$IPTABLES -A INPUT -i $ROOTERWAN -p icmp --icmp-type destination-unreachable -j ACCEPT
+$IPTABLES -A INPUT -i $ROOTERWAN -p icmp --icmp-type source-quench -j ACCEPT
+$IPTABLES -A INPUT -i $ROOTERWAN -p icmp --icmp-type echo-request -j ACCEPT
+$IPTABLES -A INPUT -i $ROOTERWAN -p icmp --icmp-type time-exceeded -j ACCEPT
+$IPTABLES -A INPUT -i $ROOTERWAN -p icmp --icmp-type parameter-problem -j ACCEPT
+$IPTABLES -A INPUT -p icmp -i $ROOTERWAN -j ACCEPT
+
+# turn on NAT
+$IPTABLES -A POSTROUTING -t nat -s $LANNET -o $ROOTERWAN -j MASQUERADE
+
+# turn on forwarding
+$IPTABLES -A FORWARD -i $ROOTERWAN -j ACCEPT
+
+# port forwarding
+$IPTABLES -A FORWARD -p tcp -s $VEGALANIP -i $ROOTERLAN -o $ROOTERWAN -j ACCEPT
+$IPTABLES -A FORWARD -i ppp+ -o eth1 -j ACCEPT
+
+
+#--- HTTP
+$IPTABLES -A PREROUTING -t nat -i $ROOTERWAN -p tcp --dport 80 -j DNAT --to $VEGALANIP
+$IPTABLES -A FORWARD -p tcp --dport 80 -i $ROOTERWAN -d $VEGALANIP -j ACCEPT
+
+#--- RDP
+$IPTABLES -A PREROUTING -t nat -i $ROOTERWAN -p tcp --dport 3389 -j DNAT --to $VEGALANIP
+$IPTABLES -A FORWARD -p tcp --dport 3389 -i $ROOTERWAN -o $ROOTERLAN -d $VEGALANIP -j ACCEPT
+
+#--- FTP
+$IPTABLES -A PREROUTING -t nat -i $ROOTERWAN -p tcp --dport 21 -j DNAT --to $VEGALANIP
+$IPTABLES -A PREROUTING -t nat -i $ROOTERWAN -p tcp --dport 20 -j DNAT --to $VEGALANIP
+$IPTABLES -A FORWARD -p tcp --dport 21 -i $ROOTERWAN -o $ROOTERLAN -d $VEGALANIP -j ACCEPT
+$IPTABLES -A FORWARD -p tcp --dport 20 -i $ROOTERWAN -o $ROOTERLAN -d $VEGALANIP -j ACCEPT
+
+#--- SSH
+$IPTABLES -A PREROUTING -t nat -i $ROOTERWAN -p tcp --dport 22 -j DNAT --to $VEGALANIP
+$IPTABLES -A FORWARD -p tcp --dport 22 -i $ROOTERWAN -o $ROOTERWAN -d $VEGALANIP -j ACCEPT
+
+# forward everything else to the STATEFUL table
+$IPTABLES -A FORWARD -j STATEFUL
+$IPTABLES -A INPUT -j STATEFUL
+$IPTABLES -A OUTPUT -j STATEFUL
