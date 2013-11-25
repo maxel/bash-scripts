@@ -14,17 +14,18 @@ BLACK='\e[0;30m'
 GREY='\e[1;30m'
 NC='\e[0m'
 
-EDITOR=/usr/bin/vim
-
+# Global options
+export EDITOR=/usr/bin/vim
+export PATH=$PATH:/root/bin:/home/dev/scripts
 export PS1="\[${UNDER}\]\[${NC}\]\[${RED}\]\u\[${BLUE}\]@\h:\w\[${NC}\] "'\$ '
+export LS_OPTIONS='--color=auto'
+
+# mask the write bit
 umask 022
 
+# Use VI bindings
 set -o vi
 
-PATH=$PATH:/root/bin:/home/dev/scripts
-#source /mnt/vault/MulTiMediA/video-tmp/avenv
-
-export LS_OPTIONS='--color=auto'
 eval "`dircolors`"
 alias ls='ls $LS_OPTIONS'
 alias ll='ls $LS_OPTIONS -l'
