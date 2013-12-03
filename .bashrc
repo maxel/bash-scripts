@@ -1,20 +1,28 @@
 # ~/.bashrc: executed by bash(1) for non-login shells.
 
-red='\e[0;31m'
-RED='\e[1;38m'
-CHERRY='\e[1;31m'
-BOLD='\e[1;39m'
-blue='\e[0;34m'
-BLUE='\e[1;34m'
-UNDER='\e[1;38m'
-cyan='\e[0;36m'
-CYAN='\e[1;36m'
-BLACK='\e[0;30m'
-GREY='\e[1;30m'
+Fred='\e[0;31m'
+FRED='\e[1;31m'
+FBOLD='\e[1m'
+Fblue='\e[0;34m'
+FBLUE='\e[1;34m'
+UNDER='\e[4m'
+Fcyan='\e[0;36m'
+FCYAN='\e[1;36m'
+FBLACK='\e[0;30m'
+FGREY='\e[1;30m'
+Fwhite='\e[0;37m'
+FWHITE='\e[1;37m'
 NC='\e[0m'
 
 export EDITOR=/usr/bin/vim
-export PS1="\[${UNDER}\]\[${NC}\]\[${RED}\]\u\[${BLUE}\]@\h:\w\[${NC}\] "'\$ '
+
+# Set prompt
+if [ $UID -eq 0 ]; then
+	# Change color of prompt for root
+	export PS1="\[${UNDER}\]\u\[${FBLUE}\]@\h:\w\[${NC}\] "'\$'"\[${NC}\] "
+else
+	export PS1="\u\[${FBLUE}\]@\h:\w\[${NC}\] "'\$ '
+fi
 umask 022
 
 set -o vi
