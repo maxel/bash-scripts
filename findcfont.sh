@@ -6,7 +6,9 @@
 
 function _trap()
 {
+    # Cleanup
     setfont /usr/share/consolefonts/_default
+    [ -e $default ] && rm $default
     echo
     exit
 }
@@ -14,10 +16,6 @@ function _trap()
 trap _trap {1..15}
 length=0
 default=/usr/share/consolefonts/_default
-
-
-# Make sure '_default' doesn't exist
-[ -e $default ] && rm $default
 
 for f in `ls /usr/share/consolefonts`
 do
