@@ -14,7 +14,11 @@ Fwhite='\e[0;37m'
 FWHITE='\e[1;37m'
 NC='\e[0m'
 
+# Setup the EDITOR
 export EDITOR=/usr/bin/vim
+
+# Enable ssh-add
+eval "$(ssh-agent)" > /dev/null
 
 # Set prompt
 if [ $UID -eq 0 ]; then
