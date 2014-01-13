@@ -2,13 +2,14 @@
 
 # Iterate through all available console fonts, setting each one so the user can see which one they like
 
+
 [ $UID != 0 ] && echo "Sorry, must be root" && exit
 
 function _trap()
 {
     # Cleanup
     setfont /usr/share/consolefonts/_default
-    [ -e $default ] && rm $default
+    [ -e $default ] && rm -f $default
     echo
     exit
 }
