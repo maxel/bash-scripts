@@ -12,8 +12,8 @@ function _trap()
     echo
     exit
 }
-
 trap _trap {1..15}
+
 length=0
 default=/usr/share/consolefonts/_default
 
