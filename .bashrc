@@ -21,11 +21,17 @@ export EDITOR=/usr/bin/vim
 eval "$(ssh-agent)" > /dev/null
 
 # Set prompt
+# First, see if we are in any GIT repos (to display the branch)
+# we are also display a utf8 branch symbol here
+#if [ -d .git ]; then
+    #GITBRANCH="\\\\$(date && [ -d .git ] && echo -n $'\u2446'" " && git branch | grep \* | cut -d \  -f 2)"
+#fi
+echo $GITBRANCH
 if [ $UID -eq 0 ]; then
 	# Change color of prompt for root
-	export PS1="\[${UNDER}\]\u\[${FBLUE}\]@\h:\w\[${NC}\] "'\$'"\[${NC}\] "
+    export PS1="\[${UNDER}\]\u\[${FBLUE}\]@\h:\w\[${NC}\] $GITBRANCH"'\$'"\[${NC}\] "
 else
-	export PS1="\u\[${FBLUE}\]@\h:\w\[${NC}\] "'\$ '
+    export PS1="\u\[${FBLUE}\]@\h:\w\[${NC}\] $GITBRANCH"'\$ '
 fi
 umask 022
 
