@@ -20,7 +20,7 @@ export EDITOR=/usr/bin/vim
 # Enable ssh-add
 eval "$(ssh-agent)" > /dev/null
 
-# Set prompt
+# PROMPT
 # First, see if we are in any GIT repos (to display the branch)
 # we are also display a utf8 branch symbol here
 #if [ -d .git ]; then
@@ -39,7 +39,10 @@ set -o vi
 
 PATH=$PATH:/root/bin:/home/dev/scripts
 
-# You may uncomment the following lines if you want `ls' to be colorized:
+# HISTORY
+export HISTFILESIZE=5000
+
+# ALIASES
 export LS_OPTIONS='--color=auto'
 eval "`dircolors`"
 alias ls='ls $LS_OPTIONS'
@@ -61,9 +64,3 @@ alias cdmovies='cd /mnt/vault/MulTiMediA/MOvieS'
 alias cdnfs='cd /mnt/nfs'
 alias cdmusic='cd /mnt/vault/MulTiMediA/MuZik'
 alias cdscripts='cd /home/dev/scripts'
-#
-# Some more alias to avoid making mistakes:
-# alias rm='rm -i'
-# alias cp='cp -i'
-# alias mv='mv -i'
-#alias cdripping='cd /mnt/lonestar/MultiMedia/ripping'
