@@ -17,27 +17,47 @@ NC='\e[0m'
 # Setup the EDITOR
 export EDITOR=/usr/bin/vim
 
+# Load functions
+if [ -d ~/.bash_functions ]; then
+    . ~/.bash_functions/*
+fi
+
 # Enable ssh-add
-eval "$(ssh-agent)" > /dev/null
+if [ -z $SSH_AGENT_PID ]; then
+    echo -ne "\nStarting ssh-agent service..."
+    eval "$(ssh-agent)" &> /dev/null
+fi
 
 # PROMPT
 # First, see if we are in any GIT repos (to display the branch)
 # we are also display a utf8 branch symbol here
-#if [ -d .git ]; then
-    #GITBRANCH="\\\\$(date && [ -d .git ] && echo -n $'\u2446'" " && git branch | grep \* | cut -d \  -f 2)"
-#fi
-echo $GITBRANCH
+function gitprompt()
+{
+	if [ -d .git ]; then
+		#GITBRANCH="\\\\$(date && [ -d .git ] && echo -n $'\u2446'" " && git branch | grep \* | cut -d \  -f 2)"
+		if [ -n "$(git status -s)" ]; then
+			STAT="X"
+		else
+   		STAT="O"
+		fi
+   	GITBRANCH="[$(git branch | grep \* | cut -d \  -f 2) $STAT] "
+ 	else
+   	unset GITBRANCH
+   fi  
+   echo $GITBRANCH
+}
+
 if [ $UID -eq 0 ]; then
 	# Change color of prompt for root
-    export PS1="\[${UNDER}\]\u\[${FBLUE}\]@\h:\w\[${NC}\] $GITBRANCH"'\$'"\[${NC}\] "
+	export PS1="\[${UNDER}\]\u\[${FBLUE}\]@\h:\w\[${NC}\] $(gitprompt)"'\$'"\[${NC}\] "
 else
-    export PS1="\u\[${FBLUE}\]@\h:\w\[${NC}\] $GITBRANCH"'\$ '
+	export PS1="\u\[${FBLUE}\]@\h:\w\[${NC}\] $GITBRANCH"'\$ '
 fi
 umask 022
 
 set -o vi
 
-PATH=$PATH:/root/bin:/home/dev/scripts
+PATH=$PATH:/root/bin:~/dev/scripts:~/dev/bin:~/bin
 
 # HISTORY
 export HISTFILESIZE=5000
@@ -64,3 +84,4 @@ alias cdmovies='cd /mnt/vault/MulTiMediA/MOvieS'
 alias cdnfs='cd /mnt/nfs'
 alias cdmusic='cd /mnt/vault/MulTiMediA/MuZik'
 alias cdscripts='cd /home/dev/scripts'
+alias grep='grep --color=auto'
