@@ -1,0 +1,42 @@
+#!/bin/bash
+
+[[ $# == 0 ]] && cat <<EOHELP && exit 1
+Usage: tmax <host1 [hostN...]>
+EOHELP
+
+if [ "$1" == "-l" ]; then
+	USER=$2
+	shift; shift
+fi
+
+C=1
+
+# Stuff arguments in an array
+HOSTS=($@)
+
+# Create new tmux session
+SESS=$(date +%h%d_%I%M%S)
+echo Connecting as $USER...
+tmux new-session -s $SESS -d "echo Connecting to ${HOSTS[0]}...; ssh ${USER}@${HOSTS[0]}; echo -e \n[Finished]; read x"
+echo session: $SESS
+
+MAX=$#
+while [ $C -lt $MAX ]; do
+	# Get next set of panes to split
+	SET=$(tmux list-pane -t $SESS:0 | awk -F: '{print $1}')
+	for s in $SET; do
+
+		# Create the new pane
+		tmux split-window -t $SESS:0.$s -h "echo Connecting to ${HOSTS[$C]}...; ssh ${USER}@${HOSTS[$C]}; echo -e \n[Finished]; read x"
+		((C++))
+		if [ $C -eq $MAX ]; then
+			break
+		fi
+	done
+done
+
+# All done, organize and set options
+tmux select-layout -t $SESS:0 tiled
+tmux select-pane -t $SESS:0.0
+tmux set-window-option -t $SESS:0 synchronize-panes on
+#tmux attach-session -t $SESS

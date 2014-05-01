@@ -1,0 +1,24 @@
+
+function loadsshid ()
+{
+    # Die if no arguments passed
+    [ $# -eq 0 ] && cat <<-EOH
+loadsshid() takes one argument; the source of the identity.
+
+The source of the identity can be of the form:
+    /abs/path/to/file
+    relative_path_to_file           (not supported)
+    <user>@<host>:<path_to_file>    (not supported)
+EOH
+    [ $# -eq 0 ] && return 1
+
+    FILE=$(basename $1)
+    RAND=$(dd if=/dev/urandom bs=256 count=1 | tr -dc 'A-Z')
+    RAND=${RAND::3}
+    FIFO=/tmp/$FILE-$RAND
+
+    mkfifo -m 0700 $FIFO
+    cat $1 > $FIFO &
+    ssh-add $FIFO
+    rm -f $FIFO
+}
