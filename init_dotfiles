@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Make sure root wants to run this thing
+[[ $UID -eq 0 ]] && echo -n "Run as root? > " && read x && [[ -z $x ]] && exit 1
+
+dotfiles_dir=$PWD/$(dirname $0)/dotfiles
+
+for file in $(ls -Aa $dotfiles_dir); do
+
+	# Skip . .. dirs
+	#[[ "$file" =~ \. ]] && continue
+	if [ "$file" == "." ] || [ "$file" == ".." ]; then continue; fi
+
+	if [ -f ~/$file ]; then
+		mv -f ~/$file ~/${file}-dotfile_bk
+		echo "Made a backup of $file"
+	fi
+	ln -vs $dotfiles_dir/$file ~/$file
+	#echo ln -vs $dotfiles_dir/$file ~/$file
+done

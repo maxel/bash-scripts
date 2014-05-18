@@ -1,0 +1,6 @@
+#!/bin/bash
+echo "taking screen capture" >> /tmp/capture-screen
+file=~/Pictures/capture-$(date +%s)
+xwd -out $file -root
+convert $file $file.png
+rm $file

@@ -9,34 +9,33 @@ if [ "$1" == "-l" ]; then
 	shift; shift
 fi
 
-C=1
-
 # Stuff arguments in an array
-HOSTS=($@)
+Hosts=($@)
 
 # Create new tmux session
-SESS=$(date +%h%d_%I%M%S)
+session=$(date +%h%d_%I%M%S)
 echo Connecting as $USER...
-tmux new-session -s $SESS -d "echo Connecting to ${HOSTS[0]}...; ssh ${USER}@${HOSTS[0]}; echo -e \n[Finished]; read x"
-echo session: $SESS
+tmux new-session -s $session -d "echo Connecting to ${Hosts[0]}...; ssh ${USER}@${Hosts[0]}; echo -e \n[Finished]; read x"
+echo session: $session
 
-MAX=$#
-while [ $C -lt $MAX ]; do
+# Set limit on number of panes to create
+pmax=$#; count=1
+while [ $count -lt $pmax ]; do
 	# Get next set of panes to split
-	SET=$(tmux list-pane -t $SESS:0 | awk -F: '{print $1}')
-	for s in $SET; do
+	pset=$(tmux list-pane -t $session:0 | awk -F: '{print $1}')
+	for s in $pset; do
 
-		# Create the new pane
-		tmux split-window -t $SESS:0.$s -h "echo Connecting to ${HOSTS[$C]}...; ssh ${USER}@${HOSTS[$C]}; echo -e \n[Finished]; read x"
-		((C++))
-		if [ $C -eq $MAX ]; then
+		# countreate the new pane
+		tmux split-window -t $session:0.$s -h "echo Connecting to ${Hosts[$count]}...; ssh ${USER}@${Hosts[$count]}; echo -e \n[Finished]; read x"
+		((count++))
+		if [ $count -eq $pmax ]; then
 			break
 		fi
 	done
 done
 
 # All done, organize and set options
-tmux select-layout -t $SESS:0 tiled
-tmux select-pane -t $SESS:0.0
-tmux set-window-option -t $SESS:0 synchronize-panes on
-#tmux attach-session -t $SESS
+tmux select-layout -t $session:0 tiled
+tmux select-pane -t $session:0.0
+tmux set-window-option -t $session:0 synchronize-panes on
+#tmux attach-session -t $session

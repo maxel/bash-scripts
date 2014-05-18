@@ -1,7 +1,24 @@
 # ~/.bashrc: executed by bash(1) for non-login shells.
 
-<<<<<<< HEAD
 # Colors!
+red='\e[0;31m'
+RED='\e[1;38m'
+CHERRY='\e[1;31m'
+BOLD='\e[1;39m'
+blue='\e[0;34m'
+BLUE='\e[1;34m'
+UNDER='\e[1;38m'
+cyan='\e[0;36m'
+CYAN='\e[1;36m'
+BLACK='\e[0;30m'
+GREY='\e[1;30m'
+NC='\e[0m'
+FRED='\e[1;31m'
+FBOLD='\e[1m'
+FUNDER='\e[4m'
+Fwhite='\e[0;37m'
+FWHITE='\e[1;37m'
+
 red='\e[0;31m'
 RED='\e[1;38m'
 CHERRY='\e[1;31m'
@@ -17,7 +34,7 @@ NC='\e[0m'
 
 # Global options
 export EDITOR=/usr/bin/vim
-export PATH=$PATH:/root/bin:/home/dev/scripts
+export PATH=$PATH:/root/bin:~/dev/sbin:~/dev/bin:~/sbin
 export PS1="\[${UNDER}\]\[${NC}\]\[${RED}\]\u\[${BLUE}\]@\h:\w\[${NC}\] "'\$ '
 export LS_OPTIONS='--color=auto'
 
@@ -31,20 +48,6 @@ eval "`dircolors`"
 alias ls='ls $LS_OPTIONS'
 alias ll='ls $LS_OPTIONS -l'
 alias l='ls $LS_OPTIONS -lA'
-=======
-Fred='\e[0;31m'
-FRED='\e[1;31m'
-FBOLD='\e[1m'
-Fblue='\e[0;34m'
-FBLUE='\e[1;34m'
-UNDER='\e[4m'
-Fcyan='\e[0;36m'
-FCYAN='\e[1;36m'
-FBLACK='\e[0;30m'
-FGREY='\e[1;30m'
-Fwhite='\e[0;37m'
-FWHITE='\e[1;37m'
-NC='\e[0m'
 
 # Setup the EDITOR
 export EDITOR=/usr/bin/vim
@@ -83,13 +86,8 @@ if [ $UID -eq 0 ]; then
 	# Change color of prompt for root
 	export PS1="\[${UNDER}\]\u\[${FBLUE}\]@\h:\w\[${NC}\] $(gitprompt)"'\$'"\[${NC}\] "
 else
-	export PS1="\u\[${FBLUE}\]@\h:\w\[${NC}\] $GITBRANCH"'\$ '
+	export PS1="\[${UNDER}\]\[${NC}\]\[${RED}\]\u\[${BLUE}\]@\h:\w\[${NC}\] $GITBRANCH"'\$ '
 fi
-umask 022
-
-set -o vi
-
-PATH=$PATH:/root/bin:~/dev/scripts:~/dev/bin:~/bin
 
 # HISTORY
 export HISTFILESIZE=5000
@@ -101,7 +99,6 @@ alias ls='ls $LS_OPTIONS'
 alias ll='ls $LS_OPTIONS -l'
 alias la='ls $LS_OPTIONS -A'
 alias lla='ls $LS_OPTIONS -lA'
->>>>>>> 690c843824e2aa586ef313f35ca1ec2ea211107c
 alias aptsearch='apt-cache search'
 alias vi='vim'
 alias cdtflux='cd /mnt/store1/tmp/admin'
@@ -117,9 +114,7 @@ alias cdmovies='cd /mnt/vault/MulTiMediA/MOvieS'
 alias cdnfs='cd /mnt/nfs'
 alias cdmusic='cd /mnt/vault/MulTiMediA/MuZik'
 alias cdscripts='cd /home/dev/scripts'
-<<<<<<< HEAD
 alias cdripping='cd /mnt/lonestar/MultiMedia/ripping'
 alias df='df --sync -Th'
-=======
 alias grep='grep --color=auto'
->>>>>>> 690c843824e2aa586ef313f35ca1ec2ea211107c
+
